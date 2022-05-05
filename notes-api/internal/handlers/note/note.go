@@ -36,5 +36,6 @@ func GetNote(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error","message" : "no data was found","data": nil})
 	}
 	
+	
 	return c.JSON(fiber.Map{"status": "success", "message" : "Data found", "data": note})
 }

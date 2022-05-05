@@ -11,4 +11,7 @@ func SetupNoteRoutes(router fiber.Router) {
 
 	note.Get("/", noteHandler.GetNotes)
 	note.Get("/:id", noteHandler.GetNote)
+	note.Post("/", noteHandler.CreateNote)
+	// note.Put("/:id", noteHandler.UpdateNote)
+	// note.Delete("/:id", noteHandler.DeleteNote)
 }

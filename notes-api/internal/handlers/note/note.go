@@ -1,6 +1,8 @@
 package noteHandler
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
@@ -16,10 +18,15 @@ func GetNotes(c *fiber.Ctx) error {
 	db.Find(&notes)
 	
 	if len(notes) == 0 {
-		return c.Status(404).JSON(fiber.Map{"status": "error","message" : "no data was found","data": nil})
-	}
+		ret := fiber.Map{"status": "error","message" : "no data was found","data": nil}
+		log.Println(ret)
 	
-	return c.JSON(fiber.Map{"status": "success", "message" : "Data found", "data": notes})
+		return c.Status(404).JSON(ret)
+	}
+	ret := fiber.Map{"status": "success", "message" : "Data found", "data": notes}
+	log.Println(ret)
+
+	return c.JSON(ret)
 }
 
 func GetNote(c *fiber.Ctx) error {
@@ -33,9 +40,34 @@ func GetNote(c *fiber.Ctx) error {
 	db.Find(&note, "id = ?", id)
 	
 	if note.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error","message" : "no data was found","data": nil})
+		ret := fiber.Map{"status": "error","message" : "no data was found","data": nil}
+		return c.Status(404).JSON(ret)
 	}
 	
+	ret := fiber.Map{"status": "success", "message" : "Data found", "data": note}
+	return c.JSON(ret)
+}
+
+func CreateNote(c *fiber.Ctx) error {
+	db := database.DB
+
+	note := new(model.Note)
+
+	err := c.BodyParser(note)
+
+	if err != nil {
+		ret := fiber.Map{"status": "error","message" : "Review your input","data": err}
+		return c.Status(500).JSON(ret)
+	}
 	
-	return c.JSON(fiber.Map{"status": "success", "message" : "Data found", "data": note})
+	note.ID = uuid.New()
+	err = db.Create(&note).Error
+
+	if err != nil {
+		ret := fiber.Map{"status": "error","message" : "Cannot create data","data": err}
+		return c.Status(500).JSON(ret)
+	}
+
+	ret := fiber.Map{"status": "success", "message" : "Data created", "data": note}
+	return c.JSON(ret)	
 }
